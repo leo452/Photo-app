@@ -9,7 +9,7 @@ Rails.application.configure do
   # Do not eager load code on boot.
   config.eager_load = false
   config.action_mailer.delivery_method = :test
-  config.action_mailer.default_url_options = {:host => 'http://rubyonrailscourse-foxtech.c9users.io:8080'}
+  config.action_mailer.default_url_options = { :host => 'http://rubyonrailscourse-foxtech.c9users.io:8080'}
   # Show full error reports.
   config.consider_all_requests_local = true
 
