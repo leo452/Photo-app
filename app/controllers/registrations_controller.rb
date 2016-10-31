@@ -1,82 +1,79 @@
-class RegistrationsController <Devise::RegistrationsController
-   
-   def create
-    build_resource(sign_up_params)
+class RegistrationsController < Devise::RegistrationsController
 
-    resource.class.transaction do
+def create
 
-    resource.save
+build_resource(sign_up_params)
 
-    yield resource if block_given?
+resource.class.transaction do
 
-    if resource.persisted?
+resource.save
 
-    @payment = Payment.new({ email: params["user"]["email"],
+yield resource if block_given?
 
-    token: params[:payment]["token"], user_id: resource.id })
+if resource.persisted?
 
-    flash[:error] = "Please check registration errors" unless @payment.valid?
+@payment = Payment.new({ email: params["user"]["email"],
 
-    begin
+token: params[:payment]["token"], user_id: resource.id })
 
-    @payment.process_payment
+flash[:error] = "Please check registration errors" unless @payment.valid?
 
-    @payment.save
+begin
 
-    rescue Exception => e
+@payment.process_payment
 
-    flash[:error] = e.message
+@payment.save
 
-    resource.destroy
+rescue Exception => e
 
-    puts 'Payment failed'
+flash[:error] = e.message
 
-    render :new and return
+resource.destroy
 
-    end
+puts 'Payment failed'
 
-    if resource.active_for_authentication?
-
-    set_flash_message :notice, :signed_up if is_flashing_format?
-
-    sign_up(resource_name, resource)
-
-    respond_with resource, location: after_sign_up_path_for(resource)
-
-    else
-
-    set_flash_message :notice, :"signed_up_but_#{resource.inactive_message}" if is_flashing_format?
-
-    expire_data_after_sign_in!
-
-    respond_with resource, location: after_inactive_sign_up_path_for(resource)
-
-    end
-
-    else
-
-    clean_up_passwords resource
-
-    set_minimum_password_length
-
-    respond_with resource
-
-    end
-
-    end
-
-    end
-
-    protected
-
-    def configure_permitted_parameters
-
-    devise_parameter_sanitizer.for(:sign_up).push(:payment)
-
-    end
+render :new and return
 
 end
-   
-   
-    
+
+if resource.active_for_authentication?
+
+set_flash_message :notice, :signed_up if is_flashing_format?
+
+sign_up(resource_name, resource)
+
+respond_with resource, location: after_sign_up_path_for(resource)
+
+else
+
+set_flash_message :notice, :"signed_up_but_#{resource.inactive_message}" if is_flashing_format?
+
+expire_data_after_sign_in!
+
+respond_with resource, location: after_inactive_sign_up_path_for(resource)
+
+end
+
+else
+
+clean_up_passwords resource
+
+set_minimum_password_length
+
+respond_with resource
+
+end
+
+end
+
+end
+
+protected
+
+def configure_permitted_parameters
+
+devise_parameter_sanitizer.for(:sign_up).push(:payment)
+
+end
+
 end
